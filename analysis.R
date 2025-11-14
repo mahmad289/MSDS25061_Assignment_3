@@ -26,3 +26,7 @@ rental <- fread("data/rental.csv")
 pg_films <- film[rating == "PG" & rental_duration > 5]
 fwrite(pg_films, "results/q1_pg_films.csv")
 
+# 2. Average rental rate of films grouped by rating
+avg_rental <- film[, .(avg_rental_rate = mean(rental_rate)), by = rating]
+fwrite(avg_rental, "results/q2_avg_rental_by_rating.csv")
+
