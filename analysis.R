@@ -37,3 +37,9 @@ films_with_language <- merge(films_dt, languages_dt, by.x = "language_id", by.y 
 film_counts_by_language <- films_with_language[, .N, by = name]
 setnames(film_counts_by_language, "N", "total_films")
 fwrite(film_counts_by_language, "results/q3_film_count_by_language.csv")
+
+# 4) List customers and the store they belong to (first name, last name, store id)
+customers_with_store <- merge(customers_dt, stores_dt, by.x = "store_id", by.y = "store_id")
+customers_store_list <- customers_with_store[, .(first_name, last_name, store_id)]
+fwrite(customers_store_list, "results/q4_customers_store.csv")
+
