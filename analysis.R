@@ -43,3 +43,13 @@ customers_with_store <- merge(customers_dt, stores_dt, by.x = "store_id", by.y =
 customers_store_list <- customers_with_store[, .(first_name, last_name, store_id)]
 fwrite(customers_store_list, "results/q4_customers_store.csv")
 
+# 5) For each payment record, include amount, date, and the staff member who processed it
+payments_with_staff <- merge(payments_dt, staff_dt, by.x = "staff_id", by.y = "staff_id")
+payment_records_with_staff <- payments_with_staff[, .(
+  amount,
+  payment_date,
+  staff_first_name = first_name,
+  staff_last_name = last_name
+)]
+fwrite(payment_records_with_staff, "results/q5_payment_staff.csv")
+
