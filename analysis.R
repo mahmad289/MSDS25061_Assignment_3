@@ -53,3 +53,8 @@ payment_records_with_staff <- payments_with_staff[, .(
 )]
 fwrite(payment_records_with_staff, "results/q5_payment_staff.csv")
 
+
+# 6) Identify films that have never been rented
+rented_film_ids <- unique(rentals_dt$film_id)
+films_never_rented <- films_dt[!(film_id %in% rented_film_ids)]
+fwrite(films_never_rented, "results/q6_unrented_films.csv")
