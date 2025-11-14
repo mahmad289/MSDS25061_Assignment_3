@@ -1,4 +1,6 @@
-# Automatically install required packages if missing
+#!/usr/bin/env Rscript
+
+# Setup: ensure necessary packages are installed and loaded
 required_packages <- c("data.table", "ggplot2")
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -6,27 +8,32 @@ for (pkg in required_packages) {
   }
 }
 
-# Load required packages
 library(data.table)
 library(ggplot2)
 
-# Create results folder if it doesn't exist
-if(!dir.exists("results")) dir.create("results")
+# Ensure output directories exist
+if (!dir.exists("results")) dir.create("results")
+if (!dir.exists("visualizations")) dir.create("visualizations")
 
-# Load CSVs into data.tables
-film <- fread("data/film.csv")
-language <- fread("data/language.csv")
-customer <- fread("data/customer.csv")
-store <- fread("data/store.csv")
-payment <- fread("data/payment.csv")
-staff <- fread("data/staff.csv")
-rental <- fread("data/rental.csv")
+# Load input CSV files (expect them in ./data)
+films_dt <- fread("data/film.csv")
+languages_dt <- fread("data/language.csv")
+customers_dt <- fread("data/customer.csv")
+stores_dt <- fread("data/store.csv")
+payments_dt <- fread("data/payment.csv")
+staff_dt <- fread("data/staff.csv")
+rentals_dt <- fread("data/rental.csv")
 
-# 1. Films with rating PG and rental duration > 5 days
-pg_films <- film[rating == "PG" & rental_duration > 5]
-fwrite(pg_films, "results/q1_pg_films.csv")
+# 1) Select films rated 'PG' with rental duration longer than 5 days
+pg_long_rental_films <- films_dt[rating == "PG" & rental_duration > 5]
+fwrite(pg_long_rental_films, "results/q1_pg_films.csv")
 
-# 2. Average rental rate of films grouped by rating
-avg_rental <- film[, .(avg_rental_rate = mean(rental_rate)), by = rating]
-fwrite(avg_rental, "results/q2_avg_rental_by_rating.csv")
+# 2) Compute average rental rate per film rating
+avg_rental_rate_by_rating <- films_dt[, .(avg_rental_rate = mean(rental_rate, na.rm = TRUE)), by = rating]
+fwrite(avg_rental_rate_by_rating, "results/q2_avg_rental_by_rating.csv")
 
+# 3) Count total films per language (join films with language lookup)
+films_with_language <- merge(films_dt, languages_dt, by.x = "language_id", by.y = "language_id")
+film_counts_by_language <- films_with_language[, .N, by = name]
+setnames(film_counts_by_language, "N", "total_films")
+fwrite(film_counts_by_language, "results/q3_film_count_by_language.csv")
